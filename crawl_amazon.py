@@ -37,12 +37,15 @@ class amazon_crawl():
 			print(goods_spcs) 
 			refresh_rate = html_item.xpath('//tr[@class="a-spacing-small po-refresh_rate"]/td/span[@class="a-size-base"]/text()')
 			print(refresh_rate)
-			rating = html_item.xpath('//span[@id="acrPopover"]/@title')
-			print(rating)
 			size = html_item.xpath('//tr[@class="a-spacing-small po-display.size"]/td/span[@class="a-size-base"]/text()')
 			print(size)
+			rating = html_item.xpath('//span[@id="acrPopover"]/@title')
+			print(rating)
+			star_rate = html_item.xpath('//table[@id="histogramTable"]/tbody/tr/td/span/a/text()')
+			print(star_rate)	
 			date_frist_p = html_item.xpath('//table[@class="a-keyvalue prodDetTable"]/tbody/tr')
 			print(date_frist_p)
+			
 			input()
 
 
