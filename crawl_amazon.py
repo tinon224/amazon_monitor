@@ -39,7 +39,7 @@ class amazon_crawl():
   
     def web_crawl(self,page):
         session = requests.session()
-        url = f'https://www.amazon.com/s?k=pc+monitor&page={page}&language=en_US&currency=TWD'
+        url = f'https://www.amazon.com/s?k=pc+monitor&page={page}&rh=n%3A1292115011&dc&language=en_US&currency=TWD&qid=1648440009&rnid=2941120011&ref=sr_nr_n_1'
         text_ = session.get(url, headers =self.headers).text
         html = etree.HTML(text_)
         items_url_list = html.xpath('//div/h2/a/@href')
@@ -48,6 +48,9 @@ class amazon_crawl():
         for item_ord in range(len(id_list)):
             item_url = 'https://www.amazon.com'+items_url_list[item_ord]
             item_id = id_list[item_ord]
+
+            if item_id in self.item_id_list:
+                continue
 
             text_item = session.get(item_url, headers = self.headers).text
             html_item = etree.HTML(text_item)   
@@ -61,7 +64,10 @@ class amazon_crawl():
             except:
                 price = None
 
-            brand = html_item.xpath('//tr[@class="a-spacing-small po-brand"]/td/span[@class="a-size-base"]/text()')[0]
+            try:
+                brand = html_item.xpath('//tr[@class="a-spacing-small po-brand"]/td/span[@class="a-size-base"]/text()')[0]
+            except:
+                brand = None
 
             goods_spcs = html_item.xpath('//tr[@class="a-spacing-small po-specific_uses_for_product"]/td/span[@class="a-size-base"]/text()')
  
@@ -118,12 +124,13 @@ class amazon_crawl():
             self.item_url_list.append(item_url)
             time.sleep(1)
 
-        return self.data_dict
             
 
 
 
 amazon_crawl = amazon_crawl()
-data = amazon_crawl.web_crawl(1)
-df = pd.DataFrame(data)
-df.to_excel('data.xlsx')
+
+for a in range(39,80):
+    data = amazon_crawl.web_crawl(a)
+df = pd.DataFrame(amazon_crawl.data_dict)
+df.to_excel('data2.xlsx')
