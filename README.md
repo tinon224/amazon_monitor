@@ -8,7 +8,7 @@
 ### 目錄結構描述  
 
 ├──scrapy                       # 目前沒有東西  
-├──README.md                    # 
+├──README.md                    # readme  
 ├──amazon_pc_monitor.ipynb      # 爬蟲資料處理及分析圖表   
 ├──crawl_amazon.py              # amazon monitor 爬蟲
 
