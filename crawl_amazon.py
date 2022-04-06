@@ -7,9 +7,10 @@ import pandas as pd
 import time
 class amazon_crawl():
     def __init__(self):
+        #輸入headers
         self.headers = {'user-agent': 'your-ua',
                         'authority': 'www.amazon.com'}
-
+       
         self.item_id_list = []
         self.item_page_list = []
         self.item_page_order_list = []
@@ -39,52 +40,62 @@ class amazon_crawl():
   
     def web_crawl(self,page):
         session = requests.session()
-        url = f'https://www.amazon.com/s?k=pc+monitor&page={page}&rh=n%3A1292115011&dc&language=en_US&currency=TWD&qid=1648440009&rnid=2941120011&ref=sr_nr_n_1'
+        #找尋pc monitor的url
+        #頁數直接改param -page 
+        #其他param -k (找尋keyword), -language, -currency
+        url = f'https://www.amazon.com/s?k=pc+monitor&page={page}&rh=n%3A1292115011&dc&language=en_US&qid=1648440009&rnid=2941120011&ref=sr_nr_n_1'
         text_ = session.get(url, headers =self.headers).text
         html = etree.HTML(text_)
+        #這頁的各個項的子頁(list)
         items_url_list = html.xpath('//div/h2/a/@href')
+        #這頁的各個項的ID(list)
         id_list = html.xpath('//div[@class="s-main-slot s-result-list s-search-results sg-row"]/div[@data-component-type="s-search-result"]/@data-asin')
 
         for item_ord in range(len(id_list)):
             item_url = 'https://www.amazon.com'+items_url_list[item_ord]
             item_id = id_list[item_ord]
-
+            
+            #去除重覆廣告項目
             if item_id in self.item_id_list:
                 continue
-
+                
+            #去各項子頁
             text_item = session.get(item_url, headers = self.headers).text
             html_item = etree.HTML(text_item)   
             rating_count = html_item.xpath('//span[@id="acrCustomerReviewText"]/text()')
+            
+            #評數人數
             try:
                 rating_count = rating_count[0]
             except:
                 rating_count = '0 ratings'
+            #價格
             try:    
                 price = html_item.xpath('//span[@class="a-price a-text-price a-size-medium apexPriceToPay"]/span/text()')[0]
             except:
                 price = None
-
+            #品牌
             try:
                 brand = html_item.xpath('//tr[@class="a-spacing-small po-brand"]/td/span[@class="a-size-base"]/text()')[0]
             except:
                 brand = None
-
+            #產品定位
             goods_spcs = html_item.xpath('//tr[@class="a-spacing-small po-specific_uses_for_product"]/td/span[@class="a-size-base"]/text()')
- 
+            
             refresh_rate = html_item.xpath('//tr[@class="a-spacing-small po-refresh_rate"]/td/span[@class="a-size-base"]/text()')
 
             size = html_item.xpath('//tr[@class="a-spacing-small po-display.size"]/td/span[@class="a-size-base"]/text()')
 
             avg_rating = html_item.xpath('//span[@id="acrPopover"]/@title')
-
+            #各星評論比
             five_star_rate = html_item.xpath('//a[@class="a-link-normal 5star"]/@title')
             four_star_rate = html_item.xpath('//a[@class="a-link-normal 4star"]/@title')
             three_star_rate = html_item.xpath('//a[@class="a-link-normal 3star"]/@title')
             two_star_rate = html_item.xpath('//a[@class="a-link-normal 2star"]/@title')
             one_star_rate = html_item.xpath('//a[@class="a-link-normal 1star"]/@title')
 
-
             time.sleep(1)
+            #評論keyword
             url_review = f'https://www.amazon.com/hz/reviews-render/ajax/lazy-widgets/stream?asin={item_id}&language=en_US&lazyWidget=cr-summarization-attributes&lazyWidget=cr-age-recommendation&lazyWidget=cr-solicitation&lazyWidget=cr-summarization-lighthut'
             text_review = session.post(url_review).text
             text_review = re.sub(r'\\','',text_review)
@@ -95,7 +106,7 @@ class amazon_crawl():
                 text_review = text_review.split('/')
             except:
                 text_review = []
-            
+            #發售日期
             pro_date = html_item.xpath('//td[@class="a-size-base prodDetAttrValue"]/text()')
             try:
                 pro_date = re.sub(r'\s','',pro_date[-1])
