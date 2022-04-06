@@ -7,7 +7,7 @@ import pandas as pd
 import time
 class amazon_crawl():
     def __init__(self):
-        self.headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36',
+        self.headers = {'user-agent': 'your-ua',
                         'authority': 'www.amazon.com'}
 
         self.item_id_list = []
